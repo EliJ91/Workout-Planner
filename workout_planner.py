@@ -12,8 +12,8 @@ from tkinter import filedialog, messagebox, ttk
 
 APP_DIR = Path(__file__).resolve().parent
 DATA_PATH = APP_DIR / "workout_data.json"
+APP_VERSION = "1.0.5"
 TODAY = date.today().isoformat()
-TODAY_LABEL = f"{date.today():%a}, {date.today():%b} {date.today().day}, {date.today().year}"
 PLATE_DENOMINATIONS = [45, 35, 25, 10, 5, 2.5]
 DEFAULT_WEIGHT_OFFSET = "45"
 NEW_EXERCISE_OFFSET = "0"
@@ -912,7 +912,7 @@ class WorkoutPlannerApp(tk.Tk):
         self.app_menu.add_command(label="Data", command=self._open_data_window)
         self.app_menu.add_command(label="Settings", command=self._open_settings)
         self.app_menu.add_separator()
-        self.app_menu.add_command(label=TODAY_LABEL, state="disabled")
+        self.app_menu.add_command(label=f"Version {APP_VERSION}", state="disabled")
 
     def _open_app_menu(self, source: tk.Widget) -> None:
         self._refresh_app_menu()

@@ -2,13 +2,8 @@
   "use strict";
 
   const STORAGE_KEY = "workoutPlanner.web.v1";
+  const APP_VERSION = "1.0.5";
   const TODAY = new Date().toISOString().slice(0, 10);
-  const TODAY_LABEL = new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date());
 
   const PLATE_DENOMINATIONS = [45, 35, 25, 10, 5, 2.5];
   const DEFAULT_WEIGHT_OFFSET = "45";
@@ -328,7 +323,7 @@
           <button class="menu-item" type="button" data-nav="data">Data</button>
           <button class="menu-item" type="button" data-nav="settings">Settings</button>
           <div class="menu-separator"></div>
-          <button class="menu-item" type="button" disabled>${escapeHtml(TODAY_LABEL)}</button>
+          <button class="menu-item" type="button" disabled>Version ${escapeHtml(APP_VERSION)}</button>
         </nav>
         <main class="page-body">${body}</main>
       </section>
