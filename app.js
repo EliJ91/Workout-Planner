@@ -497,25 +497,46 @@
       for (let i = 0; i < count; i += 1) plates.push(plate);
     });
     plates.sort((a, b) => b - a);
+    const cardWidth = 150;
+    const centerY = 64;
+    const shaftWidth = 16;
+    const stopWidth = 7;
+    const tailWidth = 24;
+    const plateGap = 6;
+    const dimensions = plateDimensions();
+    const stackWidth = plates.reduce((total, plate) => total + dimensions[plate][0], 0) + plateGap * Math.max(plates.length - 1, 0);
+    const emptyStackWidth = 52;
+    const loadedWidth = shaftWidth + stopWidth + (plates.length ? stackWidth + tailWidth : emptyStackWidth);
+    const startX = Math.max(8, Math.round((cardWidth - loadedWidth) / 2));
+    const stopX = startX + shaftWidth;
+    const sleeveStart = stopX + stopWidth;
+    const sleeveEnd = plates.length ? sleeveStart + stackWidth + tailWidth : stopX + stopWidth + emptyStackWidth;
+    let nextPlateX = sleeveStart;
+
+    const plateMarkup = plates
+      .map((plate, index) => {
+        const [width, height] = dimensions[plate];
+        const x = nextPlateX;
+        nextPlateX += width + plateGap;
+        return renderPlatePiece(plate, index, x, centerY, width, height);
+      })
+      .join("");
+
     return `
       <div class="plate-card" data-plate>
         <div class="plate-title">Barbels: ${escapeHtml(formatWeight(sideWeight))}lb</div>
         <div class="barbell-stack">
-          <div class="barbell-inner">
-            <div class="shaft-left"></div>
-            <div class="plate-stop"></div>
-            <div class="plate-group">
-              ${plates.map((plate, index) => renderPlatePiece(plate, index)).join("")}
-            </div>
-            <div class="sleeve"></div>
-          </div>
+          <div class="barbell-part shaft-left" style="left:${startX}px;top:${centerY - 2}px;width:${shaftWidth}px"></div>
+          <div class="barbell-part plate-stop" style="left:${stopX}px;top:${centerY - 14}px;width:${stopWidth}px;height:28px"></div>
+          <div class="barbell-part sleeve" style="left:${sleeveStart}px;top:${centerY - 5}px;width:${Math.max(0, sleeveEnd - sleeveStart)}px;height:10px"></div>
+          ${plateMarkup}
         </div>
       </div>
     `;
   }
 
-  function renderPlatePiece(plate, index) {
-    const sizes = {
+  function plateDimensions() {
+    return {
       45: [18, 80],
       35: [16, 68],
       25: [14, 58],
@@ -523,13 +544,14 @@
       5: [9, 34],
       2.5: [8, 26],
     };
-    const [width, height] = sizes[plate];
+  }
+
+  function renderPlatePiece(plate, index, x, centerY, width, height) {
     const shade = index % 2 === 0 ? "light" : "mid";
+    const top = centerY - height / 2;
     return `
-      <div class="plate-wrap">
-        <div class="plate ${shade}" style="width:${width}px;height:${height}px"></div>
-        <div class="plate-label ${shade}">${escapeHtml(formatWeight(plate))}</div>
-      </div>
+      <div class="plate ${shade}" style="left:${x}px;top:${top}px;width:${width}px;height:${height}px"></div>
+      <div class="plate-label ${shade}" style="left:${x - 5}px;top:106px;width:${width + 10}px">${escapeHtml(formatWeight(plate))}</div>
     `;
   }
 
@@ -540,11 +562,11 @@
     });
     app.querySelectorAll("[data-routine]").forEach((button) => {
       const selectRoutine = () => {
-      closeEditMode(false);
+        closeEditMode(false);
         state.selected_routine = button.dataset.routine;
-      dataSelection = { kind: "routine", value: state.selected_routine };
-      saveState();
-      render();
+        dataSelection = { kind: "routine", value: state.selected_routine };
+        saveState();
+        render();
       };
       button.addEventListener("click", selectRoutine);
       button.addEventListener("contextmenu", (event) => {

@@ -154,11 +154,13 @@ button {
 }
 
 .page-body {
+  height: 100%;
   min-height: 0;
   overflow: hidden;
 }
 
 .routine-page {
+  height: 100%;
   min-height: 0;
   display: grid;
   grid-template-rows: auto 1fr auto;
@@ -256,8 +258,10 @@ button {
 .routine-list {
   min-height: 0;
   overflow: auto;
+  overscroll-behavior: contain;
   scrollbar-width: none;
   touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
   padding-right: 2px;
 }
 
@@ -316,43 +320,22 @@ button {
 
 .barbell-stack {
   position: absolute;
-  inset: 24px 8px 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  inset: 0;
 }
 
-.barbell-inner {
-  display: flex;
-  align-items: center;
-  height: 86px;
+.barbell-part,
+.plate,
+.plate-label {
+  position: absolute;
 }
 
 .shaft-left {
-  width: 16px;
   height: 4px;
   background: var(--barbell);
 }
 
 .plate-stop {
-  width: 7px;
-  height: 28px;
   background: var(--barbell);
-}
-
-.plate-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.plate-wrap {
-  height: 88px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
 }
 
 .plate {
@@ -372,6 +355,7 @@ button {
   font-size: 0.62rem;
   font-weight: 800;
   line-height: 1;
+  text-align: center;
 }
 
 .plate-label.light {
@@ -383,8 +367,6 @@ button {
 }
 
 .sleeve {
-  width: 24px;
-  height: 10px;
   background: var(--barbell);
 }
 
@@ -519,6 +501,7 @@ button {
 .settings-page,
 .history-page,
 .data-page {
+  height: 100%;
   min-height: 0;
   display: grid;
   gap: 14px;
@@ -766,13 +749,9 @@ tr.selected td {
   }
 
   .exercise-card {
-    grid-template-columns: 136px minmax(0, 1fr);
+    grid-template-columns: 150px minmax(0, 1fr);
     gap: 10px;
     padding: 12px;
-  }
-
-  .plate-card {
-    width: 136px;
   }
 
   .exercise-detail {
