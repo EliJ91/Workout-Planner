@@ -45,7 +45,7 @@ button {
 }
 
 .app-shell {
-  width: min(100vw, 520px);
+  width: min(100vw, 470px);
   height: 100dvh;
   margin: 0 auto;
   background: var(--panel);
@@ -112,7 +112,7 @@ button {
   position: fixed;
   z-index: 40;
   top: 58px;
-  right: max(20px, calc((100vw - 520px) / 2 + 20px));
+  right: max(20px, calc((100vw - 470px) / 2 + 20px));
   min-width: 190px;
   padding: 8px;
   border: 1px solid var(--line);
@@ -193,6 +193,57 @@ button {
   text-align: left;
 }
 
+.routine-selector,
+.data-selector {
+  position: relative;
+  min-width: 0;
+}
+
+.routine-menu,
+.data-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: min(420px, 58dvh);
+  overflow: auto;
+  border: 1px solid var(--line);
+  background: var(--input);
+  color: var(--text);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+}
+
+.routine-menu[hidden],
+.data-menu[hidden] {
+  display: none;
+}
+
+.routine-option,
+.data-option {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  display: block;
+  text-align: left;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+
+.routine-option:hover,
+.routine-option:focus-visible,
+.data-option:hover,
+.data-option:focus-visible {
+  background: #253044;
+  color: var(--text);
+  outline: 0;
+}
+
+.routine-option.active {
+  color: var(--blue);
+}
+
 .text-input {
   text-align: center;
 }
@@ -219,7 +270,7 @@ button {
 .scroll-float {
   position: fixed;
   top: 0;
-  right: max(8px, calc((100vw - 520px) / 2 + 8px));
+  right: max(8px, calc((100vw - 470px) / 2 + 8px));
   width: 5px;
   min-height: 30px;
   border-radius: 999px;
@@ -490,47 +541,6 @@ button {
   overflow: hidden;
 }
 
-.data-selector {
-  position: relative;
-  min-width: 0;
-}
-
-.data-menu {
-  position: absolute;
-  z-index: 30;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  max-height: min(420px, 58dvh);
-  overflow: auto;
-  border: 1px solid var(--line);
-  background: #f3f0e8;
-  color: #06111f;
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
-}
-
-.data-menu[hidden] {
-  display: none;
-}
-
-.data-option {
-  width: 100%;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  display: block;
-  text-align: left;
-  padding: 7px 10px;
-  cursor: pointer;
-}
-
-.data-option:hover,
-.data-option:focus-visible {
-  background: #0b84e5;
-  color: white;
-  outline: 0;
-}
-
 .data-option.group {
   font-weight: 800;
 }
@@ -612,6 +622,10 @@ td {
 
 tr.selected td {
   background: #253044;
+}
+
+.history-row {
+  cursor: pointer;
 }
 
 .history-date {

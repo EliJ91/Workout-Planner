@@ -101,6 +101,7 @@
   };
   let toastTimer = null;
   let confirmResolver = null;
+  let longPressTimer = null;
 
   function clone(value) {
     return JSON.parse(JSON.stringify(value));
@@ -326,7 +327,6 @@
           <button class="menu-item" type="button" data-nav="history">History</button>
           <button class="menu-item" type="button" data-nav="data">Data</button>
           <button class="menu-item" type="button" data-nav="settings">Settings</button>
-          ${currentPage === "routine" ? '<button class="menu-item" type="button" data-action="delete-routine">Delete Current Routine</button>' : ""}
           <div class="menu-separator"></div>
           <button class="menu-item" type="button" disabled>${escapeHtml(TODAY_LABEL)}</button>
         </nav>
@@ -383,10 +383,6 @@
       }
       render();
     });
-    const deleteButton = app.querySelector("[data-action='delete-routine']");
-    if (deleteButton) {
-      deleteButton.addEventListener("click", deleteCurrentRoutine);
-    }
   }
 
   function renderRoutinePage() {
@@ -395,11 +391,17 @@
       <section class="routine-page">
         <div>
           <p class="section-label">Routine</p>
-          <select class="select-like" data-routine-select>
-            ${routineNames()
-              .map((name) => `<option value="${escapeAttr(name)}" ${name === currentRoutine() ? "selected" : ""}>${escapeHtml(name)}</option>`)
-              .join("")}
-          </select>
+          <div class="routine-selector">
+            <button class="select-like" type="button" data-action="toggle-routine-menu">${escapeHtml(currentRoutine())}</button>
+            <div class="routine-menu" data-routine-menu hidden>
+              ${routineNames()
+                .map(
+                  (name) =>
+                    `<button class="routine-option ${name === currentRoutine() ? "active" : ""}" type="button" data-routine="${escapeAttr(name)}">${escapeHtml(name)}</button>`
+                )
+                .join("")}
+            </div>
+          </div>
         </div>
         <div class="routine-list" data-routine-list>
           ${rows.map((row, index) => renderExerciseCard(row, index)).join("")}
@@ -532,13 +534,30 @@
   }
 
   function bindRoutinePage() {
-    const select = app.querySelector("[data-routine-select]");
-    select.addEventListener("change", () => {
+    const routineMenu = app.querySelector("[data-routine-menu]");
+    app.querySelector("[data-action='toggle-routine-menu']").addEventListener("click", () => {
+      routineMenu.hidden = !routineMenu.hidden;
+    });
+    app.querySelectorAll("[data-routine]").forEach((button) => {
+      const selectRoutine = () => {
       closeEditMode(false);
-      state.selected_routine = select.value;
+        state.selected_routine = button.dataset.routine;
       dataSelection = { kind: "routine", value: state.selected_routine };
       saveState();
       render();
+      };
+      button.addEventListener("click", selectRoutine);
+      button.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+        deleteRoutine(button.dataset.routine);
+      });
+      button.addEventListener("pointerdown", () => {
+        window.clearTimeout(longPressTimer);
+        longPressTimer = window.setTimeout(() => deleteRoutine(button.dataset.routine), 650);
+      });
+      button.addEventListener("pointerup", () => window.clearTimeout(longPressTimer));
+      button.addEventListener("pointerleave", () => window.clearTimeout(longPressTimer));
+      button.addEventListener("pointercancel", () => window.clearTimeout(longPressTimer));
     });
 
     app.querySelector("[data-action='save-routine']").addEventListener("click", saveRoutineButton);
@@ -641,16 +660,18 @@
     render();
   }
 
-  async function deleteCurrentRoutine() {
+  async function deleteRoutine(routine) {
     if (routineNames().length <= 1) {
       showToast("You need at least one routine.");
       return;
     }
-    const routine = currentRoutine();
     const ok = await confirmDialog("Delete routine", `Delete ${routine}?`, "Delete");
     if (!ok) return;
     delete state.routines[routine];
-    state.selected_routine = routineNames()[0];
+    if (state.selected_routine === routine) {
+      state.selected_routine = routineNames()[0];
+      dataSelection = { kind: "routine", value: state.selected_routine };
+    }
     closeEditMode(false);
     saveState();
     render();
@@ -723,8 +744,7 @@
       .map(({ log, index }) => {
         const selected = selectedHistory.has(index);
         return `
-          <tr class="${selected ? "selected" : ""}" data-history-index="${index}">
-            <td><input type="checkbox" ${selected ? "checked" : ""} aria-label="Select history entry"></td>
+          <tr class="history-row ${selected ? "selected" : ""}" data-history-index="${index}">
             <td>${escapeHtml(log.date)}</td>
             <td>${escapeHtml(log.routine)}</td>
             <td>${escapeHtml(log.exercises.length)}</td>
@@ -742,8 +762,8 @@
         </div>
         <div class="history-list">
           <table>
-            <thead><tr><th></th><th>Date</th><th>Routine</th><th>Exercises</th></tr></thead>
-            <tbody>${rows || '<tr><td colspan="4" class="muted">No saved workouts yet.</td></tr>'}</tbody>
+            <thead><tr><th>Date</th><th>Routine</th><th>Exercises</th></tr></thead>
+            <tbody>${rows || '<tr><td colspan="3" class="muted">No saved workouts yet.</td></tr>'}</tbody>
           </table>
         </div>
         <button class="btn btn-danger" type="button" data-action="delete-history">Delete</button>
@@ -978,7 +998,7 @@
                 `
               )
               .join("")}
-            <button class="data-option group" type="button" disabled>Other</button>
+            <button class="data-option group" type="button" data-action="noop">Other</button>
             ${groups.other
               .map(
                 (exercise) =>
@@ -1104,6 +1124,11 @@
         render();
       });
     });
+    app.querySelectorAll("[data-action='noop']").forEach((button) => {
+      button.addEventListener("click", () => {
+        menu.hidden = true;
+      });
+    });
 
     const panel = app.querySelector("[data-chart-panel]");
     if (panel) {
@@ -1159,6 +1184,10 @@
       const dataMenu = app.querySelector("[data-data-menu]");
       if (dataMenu) dataMenu.hidden = true;
     }
+    if (!event.target.closest(".routine-selector")) {
+      const routineMenu = app.querySelector("[data-routine-menu]");
+      if (routineMenu) routineMenu.hidden = true;
+    }
   });
 
   document.addEventListener("keydown", (event) => {
@@ -1169,6 +1198,8 @@
       if (menu) menu.hidden = true;
       const dataMenu = app.querySelector("[data-data-menu]");
       if (dataMenu) dataMenu.hidden = true;
+      const routineMenu = app.querySelector("[data-routine-menu]");
+      if (routineMenu) routineMenu.hidden = true;
     }
   });
 
