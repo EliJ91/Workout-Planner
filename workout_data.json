@@ -1,0 +1,597 @@
+{
+  "settings": {
+    "always_on_top": true
+  },
+  "selected_group": "Pull Day",
+  "deleted_groups": [
+    "Upper Day",
+    "Lower Day"
+  ],
+  "groups": {
+    "Push Day": [
+      {
+        "exercise": "Incline Barbell Press",
+        "percent": 100,
+        "target_reps": "3x8",
+        "target_weight": 125.0
+      },
+      {
+        "exercise": "Seated Shoulder Press",
+        "percent": 55,
+        "target_reps": "3x10",
+        "target_weight": 67.5
+      },
+      {
+        "exercise": "Cable Chest Fly",
+        "percent": 30,
+        "target_reps": "3x8",
+        "target_weight": 37.5
+      },
+      {
+        "exercise": "Cable Lateral Raise",
+        "percent": 10,
+        "target_reps": "3x8",
+        "target_weight": 12.5
+      },
+      {
+        "exercise": "Cable Tricep Pushdown",
+        "percent": 35,
+        "target_reps": "3x10",
+        "target_weight": 42.5
+      },
+      {
+        "exercise": "Overhead Cable Tricep Extension",
+        "percent": 20,
+        "target_reps": "2x15",
+        "target_weight": 25.0
+      }
+    ],
+    "Pull Day": [
+      {
+        "exercise": "Barbell Row",
+        "percent": 100,
+        "target_reps": "3x8",
+        "target_weight": 100.0
+      },
+      {
+        "exercise": "Lat Pulldown",
+        "percent": 100,
+        "target_reps": "3x6",
+        "target_weight": 100.0
+      },
+      {
+        "exercise": "Cable Row 1 Arm",
+        "percent": 40,
+        "target_reps": "3x8",
+        "target_weight": 40.0
+      },
+      {
+        "exercise": "Face Pulls",
+        "percent": 40,
+        "target_reps": "3x12",
+        "target_weight": 40.0
+      },
+      {
+        "exercise": "Preacher Curl",
+        "percent": 30,
+        "target_reps": "3x10",
+        "target_weight": 30.0
+      },
+      {
+        "exercise": "Hammer Curl (Cable) 1 Arm",
+        "percent": 15,
+        "target_reps": "2x10",
+        "target_weight": 15.0
+      }
+    ],
+    "Legs Day": [
+      {
+        "exercise": "Squat",
+        "percent": 100,
+        "target_reps": "3x6-8"
+      },
+      {
+        "exercise": "Romanian Deadlift",
+        "percent": 70,
+        "target_reps": "3x8-10"
+      },
+      {
+        "exercise": "Bulgarian Split Squat",
+        "percent": 35,
+        "target_reps": "3x10 each leg"
+      },
+      {
+        "exercise": "Cable Pull Through",
+        "percent": 40,
+        "target_reps": "3x12"
+      },
+      {
+        "exercise": "Calf Raises",
+        "percent": 50,
+        "target_reps": "3x15"
+      },
+      {
+        "exercise": "Back Extensions",
+        "percent": 15,
+        "target_reps": "2x15"
+      }
+    ]
+  },
+  "sets": [
+    {
+      "date": "2026-07-08",
+      "exercise_group": "Imported",
+      "main_exercise": "Back Squat",
+      "main_weight": 185.0,
+      "exercise": "Back Squat",
+      "percent": 100,
+      "target_weight": 185.0,
+      "target_reps": "5"
+    },
+    {
+      "date": "2026-07-15",
+      "exercise_group": "Imported",
+      "main_exercise": "Back Squat",
+      "main_weight": 195.0,
+      "exercise": "Back Squat",
+      "percent": 100,
+      "target_weight": 195.0,
+      "target_reps": "5"
+    },
+    {
+      "date": "2026-07-22",
+      "exercise_group": "Imported",
+      "main_exercise": "Back Squat",
+      "main_weight": 200.0,
+      "exercise": "Back Squat",
+      "percent": 100,
+      "target_weight": 200.0,
+      "target_reps": "5"
+    },
+    {
+      "date": "2026-07-10",
+      "exercise_group": "Imported",
+      "main_exercise": "Bench Press",
+      "main_weight": 135.0,
+      "exercise": "Bench Press",
+      "percent": 100,
+      "target_weight": 135.0,
+      "target_reps": "6"
+    },
+    {
+      "date": "2026-07-17",
+      "exercise_group": "Imported",
+      "main_exercise": "Bench Press",
+      "main_weight": 145.0,
+      "exercise": "Bench Press",
+      "percent": 100,
+      "target_weight": 145.0,
+      "target_reps": "5"
+    },
+    {
+      "date": "2026-08-03",
+      "exercise_group": "Push Day",
+      "main_exercise": "Incline Barbell Press",
+      "main_weight": 125.0,
+      "exercise": "Incline Barbell Press",
+      "percent": 100,
+      "target_weight": 125.0,
+      "target_reps": "3x8"
+    },
+    {
+      "date": "2026-08-03",
+      "exercise_group": "Push Day",
+      "main_exercise": "Incline Barbell Press",
+      "main_weight": 125.0,
+      "exercise": "Seated Shoulder Press",
+      "percent": 55,
+      "target_weight": 67.5,
+      "target_reps": "3x10"
+    },
+    {
+      "date": "2026-08-03",
+      "exercise_group": "Push Day",
+      "main_exercise": "Incline Barbell Press",
+      "main_weight": 125.0,
+      "exercise": "Cable Chest Fly",
+      "percent": 30,
+      "target_weight": 37.5,
+      "target_reps": "3x8"
+    },
+    {
+      "date": "2026-08-03",
+      "exercise_group": "Push Day",
+      "main_exercise": "Incline Barbell Press",
+      "main_weight": 125.0,
+      "exercise": "Cable Lateral Raise",
+      "percent": 10,
+      "target_weight": 12.5,
+      "target_reps": "3x8"
+    },
+    {
+      "date": "2026-08-03",
+      "exercise_group": "Push Day",
+      "main_exercise": "Incline Barbell Press",
+      "main_weight": 125.0,
+      "exercise": "Cable Tricep Pushdown",
+      "percent": 35,
+      "target_weight": 42.5,
+      "target_reps": "3x10"
+    },
+    {
+      "date": "2026-08-03",
+      "exercise_group": "Push Day",
+      "main_exercise": "Incline Barbell Press",
+      "main_weight": 125.0,
+      "exercise": "Overhead Cable Tricep Extension",
+      "percent": 20,
+      "target_weight": 25.0,
+      "target_reps": "2x15"
+    },
+    {
+      "date": "2026-08-06",
+      "exercise_group": "Pull Day",
+      "main_exercise": "Barbell Row",
+      "main_weight": 100.0,
+      "exercise": "Barbell Row",
+      "percent": 100,
+      "target_weight": 100.0,
+      "target_reps": "3x8"
+    },
+    {
+      "date": "2026-08-06",
+      "exercise_group": "Pull Day",
+      "main_exercise": "Barbell Row",
+      "main_weight": 100.0,
+      "exercise": "Lat Pulldown",
+      "percent": 100,
+      "target_weight": 100.0,
+      "target_reps": "3x6"
+    },
+    {
+      "date": "2026-08-06",
+      "exercise_group": "Pull Day",
+      "main_exercise": "Barbell Row",
+      "main_weight": 100.0,
+      "exercise": "Cable Row 1 Arm",
+      "percent": 40,
+      "target_weight": 40.0,
+      "target_reps": "3x8"
+    },
+    {
+      "date": "2026-08-06",
+      "exercise_group": "Pull Day",
+      "main_exercise": "Barbell Row",
+      "main_weight": 100.0,
+      "exercise": "Face Pulls",
+      "percent": 40,
+      "target_weight": 40.0,
+      "target_reps": "3x12"
+    },
+    {
+      "date": "2026-08-06",
+      "exercise_group": "Pull Day",
+      "main_exercise": "Barbell Row",
+      "main_weight": 100.0,
+      "exercise": "Preacher Curl",
+      "percent": 30,
+      "target_weight": 30.0,
+      "target_reps": "3x10"
+    },
+    {
+      "date": "2026-08-06",
+      "exercise_group": "Pull Day",
+      "main_exercise": "Barbell Row",
+      "main_weight": 100.0,
+      "exercise": "Hammer Curl (Cable) 1 Arm",
+      "percent": 15,
+      "target_weight": 15.0,
+      "target_reps": "2x10"
+    },
+    {
+      "date": "2026-08-09",
+      "exercise_group": "Push Day",
+      "main_exercise": "Incline Barbell Press",
+      "main_weight": 125.0,
+      "exercise": "Incline Barbell Press",
+      "percent": 100,
+      "target_weight": 125.0,
+      "target_reps": "3x8"
+    },
+    {
+      "date": "2026-08-09",
+      "exercise_group": "Push Day",
+      "main_exercise": "Incline Barbell Press",
+      "main_weight": 125.0,
+      "exercise": "Seated Shoulder Press",
+      "percent": 55,
+      "target_weight": 67.5,
+      "target_reps": "3x10"
+    },
+    {
+      "date": "2026-08-09",
+      "exercise_group": "Push Day",
+      "main_exercise": "Incline Barbell Press",
+      "main_weight": 125.0,
+      "exercise": "Cable Chest Fly",
+      "percent": 30,
+      "target_weight": 37.5,
+      "target_reps": "3x8"
+    },
+    {
+      "date": "2026-08-09",
+      "exercise_group": "Push Day",
+      "main_exercise": "Incline Barbell Press",
+      "main_weight": 125.0,
+      "exercise": "Cable Lateral Raise",
+      "percent": 10,
+      "target_weight": 12.5,
+      "target_reps": "3x8"
+    },
+    {
+      "date": "2026-08-09",
+      "exercise_group": "Push Day",
+      "main_exercise": "Incline Barbell Press",
+      "main_weight": 125.0,
+      "exercise": "Cable Tricep Pushdown",
+      "percent": 35,
+      "target_weight": 42.5,
+      "target_reps": "3x10"
+    },
+    {
+      "date": "2026-08-09",
+      "exercise_group": "Push Day",
+      "main_exercise": "Incline Barbell Press",
+      "main_weight": 125.0,
+      "exercise": "Overhead Cable Tricep Extension",
+      "percent": 20,
+      "target_weight": 25.0,
+      "target_reps": "2x15"
+    }
+  ],
+  "routines": {
+    "Push Day": [
+      {
+        "exercise": "Incline Barbell Press",
+        "weight": "125",
+        "reps": "3x8",
+        "weight_offset": "45",
+        "track_pb": false
+      },
+      {
+        "exercise": "Seated Shoulder Press",
+        "weight": "67.5",
+        "reps": "3x10",
+        "weight_offset": "45",
+        "track_pb": false
+      },
+      {
+        "exercise": "Cable Chest Fly",
+        "weight": "40",
+        "reps": "3x8",
+        "weight_offset": "20",
+        "track_pb": false
+      },
+      {
+        "exercise": "Cable Lateral Raise",
+        "weight": "15",
+        "reps": "3x8",
+        "weight_offset": "0",
+        "track_pb": false
+      },
+      {
+        "exercise": "Cable Tricep Pushdown",
+        "weight": "45",
+        "reps": "3x10",
+        "weight_offset": "0",
+        "track_pb": false
+      },
+      {
+        "exercise": "Overhead Cable Tricep Extension",
+        "weight": "40",
+        "reps": "2x15",
+        "weight_offset": "0",
+        "track_pb": false
+      }
+    ],
+    "Pull Day": [
+      {
+        "exercise": "Barbell Row",
+        "weight": "100",
+        "reps": "3x8",
+        "weight_offset": "45",
+        "track_pb": false
+      },
+      {
+        "exercise": "Lat Pulldown",
+        "weight": "100",
+        "reps": "3x6",
+        "weight_offset": "45",
+        "track_pb": false
+      },
+      {
+        "exercise": "Cable Row 1 Arm",
+        "weight": "40",
+        "reps": "3x8",
+        "weight_offset": "0",
+        "track_pb": false
+      },
+      {
+        "exercise": "Face Pulls",
+        "weight": "40",
+        "reps": "3x12",
+        "weight_offset": "0",
+        "track_pb": false
+      },
+      {
+        "exercise": "Preacher Curl",
+        "weight": "30",
+        "reps": "3x10",
+        "weight_offset": "0",
+        "track_pb": false
+      },
+      {
+        "exercise": "Hammer Curl 1 Arm",
+        "weight": "15",
+        "reps": "2x10",
+        "weight_offset": "0",
+        "track_pb": false
+      }
+    ],
+    "Legs Day": [
+      {
+        "exercise": "Squat",
+        "weight": "0",
+        "reps": "3x6-8",
+        "weight_offset": "45",
+        "track_pb": false
+      },
+      {
+        "exercise": "Romanian Deadlift",
+        "weight": "0",
+        "reps": "3x8-10",
+        "weight_offset": "45",
+        "track_pb": false
+      },
+      {
+        "exercise": "Bulgarian Split Squat",
+        "weight": "0",
+        "reps": "3x10 each leg",
+        "weight_offset": "45",
+        "track_pb": false
+      },
+      {
+        "exercise": "Cable Pull Through",
+        "weight": "0",
+        "reps": "3x12",
+        "weight_offset": "45",
+        "track_pb": false
+      },
+      {
+        "exercise": "Calf Raises",
+        "weight": "0",
+        "reps": "3x15",
+        "weight_offset": "45",
+        "track_pb": false
+      },
+      {
+        "exercise": "Back Extensions",
+        "weight": "0",
+        "reps": "2x15",
+        "weight_offset": "45",
+        "track_pb": false
+      }
+    ]
+  },
+  "selected_routine": "Legs Day",
+  "routine_logs": [
+    {
+      "date": "2026-08-03",
+      "routine": "Push Day",
+      "exercises": [
+        {
+          "exercise": "Incline Barbell Press",
+          "weight": "125",
+          "reps": "3x8"
+        },
+        {
+          "exercise": "Seated Shoulder Press",
+          "weight": "67.5",
+          "reps": "3x10"
+        },
+        {
+          "exercise": "Cable Chest Fly",
+          "weight": "37.5",
+          "reps": "3x8"
+        },
+        {
+          "exercise": "Cable Lateral Raise",
+          "weight": "12.5",
+          "reps": "3x8"
+        },
+        {
+          "exercise": "Cable Tricep Pushdown",
+          "weight": "42.5",
+          "reps": "3x10"
+        },
+        {
+          "exercise": "Overhead Cable Tricep Extension",
+          "weight": "25",
+          "reps": "2x15"
+        }
+      ]
+    },
+    {
+      "date": "2026-08-06",
+      "routine": "Pull Day",
+      "exercises": [
+        {
+          "exercise": "Barbell Row",
+          "weight": "100",
+          "reps": "3x8"
+        },
+        {
+          "exercise": "Lat Pulldown",
+          "weight": "100",
+          "reps": "3x6"
+        },
+        {
+          "exercise": "Cable Row 1 Arm",
+          "weight": "40",
+          "reps": "3x8"
+        },
+        {
+          "exercise": "Face Pulls",
+          "weight": "40",
+          "reps": "3x12"
+        },
+        {
+          "exercise": "Preacher Curl",
+          "weight": "30",
+          "reps": "3x10"
+        },
+        {
+          "exercise": "Hammer Curl (Cable) 1 Arm",
+          "weight": "15",
+          "reps": "2x10"
+        }
+      ]
+    },
+    {
+      "date": "2026-08-09",
+      "routine": "Push Day",
+      "exercises": [
+        {
+          "exercise": "Incline Barbell Press",
+          "weight": "125",
+          "reps": "3x8"
+        },
+        {
+          "exercise": "Seated Shoulder Press",
+          "weight": "67.5",
+          "reps": "3x10"
+        },
+        {
+          "exercise": "Cable Chest Fly",
+          "weight": "37.5",
+          "reps": "3x8"
+        },
+        {
+          "exercise": "Cable Lateral Raise",
+          "weight": "12.5",
+          "reps": "3x8"
+        },
+        {
+          "exercise": "Cable Tricep Pushdown",
+          "weight": "42.5",
+          "reps": "3x10"
+        },
+        {
+          "exercise": "Overhead Cable Tricep Extension",
+          "weight": "25",
+          "reps": "2x15"
+        }
+      ]
+    }
+  ]
+}
