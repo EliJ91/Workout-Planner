@@ -147,6 +147,12 @@ button {
   cursor: default;
 }
 
+.menu-status {
+  font-size: 0.76rem;
+  line-height: 1.35;
+  white-space: normal;
+}
+
 .menu-separator {
   height: 1px;
   margin: 6px 0;

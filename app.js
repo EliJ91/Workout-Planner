@@ -2,8 +2,9 @@
   "use strict";
 
   const STORAGE_KEY = "workoutPlanner.web.v1";
-  const APP_VERSION = "1.0.5";
+  const APP_VERSION = "1.1.0";
   const TODAY = new Date().toISOString().slice(0, 10);
+  const SUPABASE_TABLE = "workout_planner_data";
 
   const PLATE_DENOMINATIONS = [45, 35, 25, 10, 5, 2.5];
   const DEFAULT_WEIGHT_OFFSET = "45";
@@ -84,11 +85,27 @@
   const app = document.getElementById("app");
   const importFile = document.getElementById("import-file");
   const toast = document.getElementById("toast");
+  const cloudConfig = window.WORKOUT_SUPABASE || {};
+  const supabaseClient =
+    window.supabase && cloudConfig.url && cloudConfig.anonKey
+      ? window.supabase.createClient(cloudConfig.url, cloudConfig.anonKey, {
+          auth: {
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            persistSession: true,
+          },
+        })
+      : null;
 
   let state = loadState();
   let currentPage = "routine";
   let editMode = false;
   let editSnapshot = null;
+  let authSession = null;
+  let cloudSaveTimer = null;
+  let cloudLoadActive = false;
+  let cloudStatus = supabaseClient ? "Cloud ready" : "Local only";
+  let cloudDatabaseFull = false;
   let selectedHistory = new Set();
   let dataSelection = {
     kind: "routine",
@@ -235,8 +252,142 @@
     return normalizeData(INITIAL_DATA);
   }
 
-  function saveState() {
+  function saveState(options = {}) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (options.cloud !== false) queueCloudSave();
+  }
+
+  function cloudUserLabel() {
+    if (!authSession?.user) return "";
+    return authSession.user.user_metadata?.full_name || authSession.user.email || "Google user";
+  }
+
+  function cloudMenu() {
+    if (!supabaseClient) {
+      return '<button class="menu-item menu-status" type="button" disabled>Cloud sync unavailable</button>';
+    }
+    if (!authSession) {
+      return `
+        <button class="menu-item" type="button" data-action="sign-in-google">Sign in with Google</button>
+        <button class="menu-item menu-status" type="button" disabled>${escapeHtml(cloudStatus)}</button>
+      `;
+    }
+    return `
+      <button class="menu-item" type="button" data-action="sync-cloud">Sync Now</button>
+      <button class="menu-item" type="button" data-action="sign-out-google">Sign out</button>
+      <button class="menu-item menu-status" type="button" disabled>${escapeHtml(cloudUserLabel())}<br>${escapeHtml(cloudStatus)}</button>
+    `;
+  }
+
+  function isDatabaseFullError(error) {
+    const status = String(error?.status || error?.code || "");
+    const message = String(error?.message || error?.details || error || "").toLowerCase();
+    return (
+      ["402", "413", "507", "53100", "53200", "53300", "53400", "54000"].includes(status) ||
+      /quota|limit|exceeded|database.*full|storage.*full|disk|insufficient resources|row is too big/.test(message)
+    );
+  }
+
+  function queueCloudSave() {
+    if (!supabaseClient || !authSession || cloudLoadActive || cloudDatabaseFull) return;
+    window.clearTimeout(cloudSaveTimer);
+    cloudSaveTimer = window.setTimeout(() => saveCloudData({ quiet: true }), 650);
+  }
+
+  async function saveCloudData({ quiet = false } = {}) {
+    if (!supabaseClient || !authSession) return { ok: false, skipped: true };
+    if (cloudDatabaseFull) {
+      if (!quiet) showToast("Database is full. Saved on this device only.");
+      return { ok: false, databaseFull: true };
+    }
+    window.clearTimeout(cloudSaveTimer);
+    cloudStatus = "Syncing...";
+    try {
+      const payload = normalizeData(state);
+      const { error } = await supabaseClient.from(SUPABASE_TABLE).upsert(
+        {
+          user_id: authSession.user.id,
+          payload,
+        },
+        { onConflict: "user_id" }
+      );
+      if (error) throw error;
+      cloudStatus = "Synced";
+      return { ok: true };
+    } catch (error) {
+      if (isDatabaseFullError(error)) {
+        cloudDatabaseFull = true;
+        cloudStatus = "Database full";
+        showToast("Database is full. Saved on this device only.");
+        return { ok: false, databaseFull: true };
+      }
+      cloudStatus = "Cloud sync failed";
+      if (!quiet) showToast("Saved on this device. Cloud sync failed.");
+      return { ok: false, error };
+    } finally {
+      updateMenuStatus();
+    }
+  }
+
+  async function loadCloudData() {
+    if (!supabaseClient || !authSession) return;
+    cloudLoadActive = true;
+    cloudStatus = "Loading cloud...";
+    updateMenuStatus();
+    try {
+      const { data, error } = await supabaseClient
+        .from(SUPABASE_TABLE)
+        .select("payload")
+        .eq("user_id", authSession.user.id)
+        .maybeSingle();
+      if (error) throw error;
+      if (data?.payload) {
+        state = normalizeData(data.payload);
+        saveState({ cloud: false });
+        cloudStatus = "Synced";
+      } else {
+        cloudLoadActive = false;
+        await saveCloudData({ quiet: true });
+        cloudLoadActive = true;
+      }
+    } catch (error) {
+      cloudStatus = isDatabaseFullError(error) ? "Database full" : "Cloud sync failed";
+      if (isDatabaseFullError(error)) cloudDatabaseFull = true;
+      showToast(cloudDatabaseFull ? "Database is full. Saved on this device only." : "Cloud data unavailable.");
+    } finally {
+      cloudLoadActive = false;
+      render();
+    }
+  }
+
+  function updateMenuStatus() {
+    const statusNode = app.querySelector(".menu-status");
+    if (statusNode) {
+      statusNode.innerHTML = authSession
+        ? `${escapeHtml(cloudUserLabel())}<br>${escapeHtml(cloudStatus)}`
+        : escapeHtml(cloudStatus);
+    }
+  }
+
+  async function initCloudAuth() {
+    if (!supabaseClient) return;
+    try {
+      const { data } = await supabaseClient.auth.getSession();
+      authSession = data.session;
+      cloudStatus = authSession ? "Signed in" : "Not signed in";
+      if (authSession) await loadCloudData();
+      else render();
+      supabaseClient.auth.onAuthStateChange((_event, session) => {
+        authSession = session;
+        cloudDatabaseFull = false;
+        cloudStatus = session ? "Signed in" : "Not signed in";
+        if (session) loadCloudData();
+        else render();
+      });
+    } catch (_error) {
+      cloudStatus = "Cloud sync failed";
+      render();
+    }
   }
 
   function routineNames() {
@@ -323,6 +474,8 @@
           <button class="menu-item" type="button" data-nav="data">Data</button>
           <button class="menu-item" type="button" data-nav="settings">Settings</button>
           <div class="menu-separator"></div>
+          ${cloudMenu()}
+          <div class="menu-separator"></div>
           <button class="menu-item" type="button" disabled>Version ${escapeHtml(APP_VERSION)}</button>
         </nav>
         <main class="page-body">${body}</main>
@@ -378,6 +531,40 @@
       }
       render();
     });
+    const signIn = app.querySelector("[data-action='sign-in-google']");
+    if (signIn) {
+      signIn.addEventListener("click", async () => {
+        if (!supabaseClient) {
+          showToast("Cloud sync is not configured.");
+          return;
+        }
+        cloudStatus = "Opening Google...";
+        updateMenuStatus();
+        const { error } = await supabaseClient.auth.signInWithOAuth({ provider: "google" });
+        if (error) {
+          cloudStatus = "Sign in failed";
+          updateMenuStatus();
+          showToast("Google sign in failed.");
+        }
+      });
+    }
+    const signOut = app.querySelector("[data-action='sign-out-google']");
+    if (signOut) {
+      signOut.addEventListener("click", async () => {
+        if (!supabaseClient) return;
+        await supabaseClient.auth.signOut();
+        authSession = null;
+        cloudStatus = "Not signed in";
+        render();
+      });
+    }
+    const sync = app.querySelector("[data-action='sync-cloud']");
+    if (sync) {
+      sync.addEventListener("click", async () => {
+        const result = await saveCloudData({ quiet: false });
+        if (result.ok) showToast("Cloud sync complete.");
+      });
+    }
   }
 
   function renderRoutinePage() {
@@ -619,7 +806,8 @@
       editSnapshot = null;
       saveState();
       render();
-      showToast(`${currentRoutine()} was updated.`);
+      const result = await saveCloudData({ quiet: true });
+      showToast(result.databaseFull ? "Database is full. Saved on this device only." : `${currentRoutine()} was updated.`);
       return;
     }
     const ok = await confirmDialog("Save workout", `Save ${currentRoutine()} for ${TODAY}?`, "Save");
@@ -640,7 +828,8 @@
       }));
     state.routine_logs.push({ date: TODAY, routine: currentRoutine(), exercises, pb_entries: pbEntries });
     saveState();
-    showToast(`${currentRoutine()} was saved for ${TODAY}.`);
+    const result = await saveCloudData({ quiet: true });
+    showToast(result.databaseFull ? "Database is full. Saved on this device only." : `${currentRoutine()} was saved for ${TODAY}.`);
   }
 
   function validateRows() {
@@ -1227,4 +1416,5 @@
   }
 
   render();
+  initCloudAuth();
 })();
