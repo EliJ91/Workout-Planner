@@ -165,6 +165,59 @@ button {
   overflow: hidden;
 }
 
+.auth-screen {
+  grid-template-rows: 1fr;
+}
+
+.auth-body {
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+.auth-panel {
+  width: 100%;
+  display: grid;
+  gap: 18px;
+  justify-items: stretch;
+}
+
+.auth-logo {
+  width: 74px;
+  height: 74px;
+  justify-self: center;
+}
+
+.auth-panel h1 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(2rem, 11vw, 3.25rem);
+  font-weight: 850;
+  line-height: 1;
+  text-align: center;
+}
+
+.auth-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.auth-copy,
+.auth-version {
+  margin: 0;
+  color: var(--muted);
+  text-align: center;
+}
+
+.auth-copy {
+  font-size: 0.92rem;
+}
+
+.auth-version {
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
 .routine-page {
   height: 100%;
   min-height: 0;

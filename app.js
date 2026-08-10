@@ -4,7 +4,7 @@
   const STORAGE_KEY = "workoutPlanner.web.v1";
   const USER_STORAGE_PREFIX = `${STORAGE_KEY}.user.`;
   const GUEST_MODE_KEY = `${STORAGE_KEY}.guestMode`;
-  const APP_VERSION = "1.1.4";
+  const APP_VERSION = "1.1.5";
   const TODAY = new Date().toISOString().slice(0, 10);
   const SUPABASE_TABLE = "workout_planner_data";
 
@@ -105,6 +105,7 @@
   let editMode = false;
   let editSnapshot = null;
   let guestMode = localStorage.getItem(GUEST_MODE_KEY) === "true";
+  let authReady = !supabaseClient;
   let cloudSaveTimer = null;
   let cloudLoadActive = false;
   let cloudStatus = supabaseClient ? "Cloud ready" : "Local only";
@@ -293,12 +294,53 @@
     return hasCloudIdentity();
   }
 
+  function canEnterApp() {
+    return hasCloudIdentity() || guestMode;
+  }
+
   function localStorageStatus() {
     return guestMode ? "Guest mode<br>Browser storage only" : "Not signed in<br>Browser storage only";
   }
 
   function authRedirectUrl() {
     return `${window.location.origin}${window.location.pathname}`;
+  }
+
+  async function signInWithGoogle() {
+    if (!supabaseClient) {
+      showToast("Cloud sync is not configured.");
+      return;
+    }
+    guestMode = false;
+    localStorage.removeItem(GUEST_MODE_KEY);
+    cloudStatus = "Opening Google...";
+    updateMenuStatus();
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: authRedirectUrl() },
+    });
+    if (error) {
+      cloudStatus = "Sign in failed";
+      updateMenuStatus();
+      showToast("Google sign in failed.");
+    }
+  }
+
+  function enterGuestMode() {
+    guestMode = true;
+    localStorage.setItem(GUEST_MODE_KEY, "true");
+    cloudStatus = "Browser storage only";
+    applyLoadedState(loadState(STORAGE_KEY));
+    currentPage = "routine";
+    render();
+    showToast("Guest mode saves to this browser only.");
+  }
+
+  function leaveGuestMode() {
+    guestMode = false;
+    localStorage.removeItem(GUEST_MODE_KEY);
+    cloudStatus = "Browser storage only";
+    render();
   }
 
   function cloudMenu() {
@@ -421,6 +463,7 @@
     try {
       const { data } = await supabaseClient.auth.getSession();
       authSession = data.session;
+      authReady = true;
       if (authSession) {
         guestMode = false;
         localStorage.removeItem(GUEST_MODE_KEY);
@@ -432,6 +475,7 @@
       }
       supabaseClient.auth.onAuthStateChange((_event, session) => {
         authSession = session;
+        authReady = true;
         cloudDatabaseFull = false;
         if (session) {
           guestMode = false;
@@ -468,6 +512,10 @@
   }
 
   function setPage(page) {
+    if (!canEnterApp()) {
+      render();
+      return;
+    }
     if (page === "new" && !canCreateRoutines()) {
       currentPage = "routine";
       closeEditMode(false);
@@ -552,7 +600,45 @@
     `;
   }
 
+  function authShell(body) {
+    return `
+      <section class="screen auth-screen">
+        <main class="auth-body">${body}</main>
+      </section>
+    `;
+  }
+
+  function renderAuthGate() {
+    if (!authReady) {
+      return authShell(`
+        <section class="auth-panel">
+          <img class="auth-logo" src="icons/icon.svg" alt="">
+          <h1>Workout Planner</h1>
+          <p class="auth-copy">Checking sign in...</p>
+        </section>
+      `);
+    }
+    return authShell(`
+      <section class="auth-panel">
+        <img class="auth-logo" src="icons/icon.svg" alt="">
+        <h1>Workout Planner</h1>
+        <div class="auth-actions">
+          <button class="btn btn-primary" type="button" data-action="sign-in-google">Sign in with Google</button>
+          <button class="btn btn-secondary" type="button" data-action="guest-sign-in">Continue as Guest</button>
+        </div>
+        <p class="auth-copy">Cloud storage requires Google sign in.</p>
+        <p class="auth-version">Version ${escapeHtml(APP_VERSION)}</p>
+      </section>
+    `);
+  }
+
   function render() {
+    if (!canEnterApp()) {
+      closeEditMode(false);
+      app.innerHTML = renderAuthGate();
+      bindAuthGate();
+      return;
+    }
     const title = currentPage === "routine" ? "Workout Planner" : titleForPage(currentPage);
     app.innerHTML = shell(title, bodyForPage(currentPage));
     bindShell();
@@ -561,6 +647,13 @@
     if (currentPage === "history") bindHistoryPage();
     if (currentPage === "data") bindDataPage();
     if (currentPage === "settings") bindSettingsPage();
+  }
+
+  function bindAuthGate() {
+    const signIn = app.querySelector("[data-action='sign-in-google']");
+    if (signIn) signIn.addEventListener("click", signInWithGoogle);
+    const guestSignIn = app.querySelector("[data-action='guest-sign-in']");
+    if (guestSignIn) guestSignIn.addEventListener("click", enterGuestMode);
   }
 
   function titleForPage(page) {
@@ -601,46 +694,11 @@
       render();
     });
     const signIn = app.querySelector("[data-action='sign-in-google']");
-    if (signIn) {
-      signIn.addEventListener("click", async () => {
-        if (!supabaseClient) {
-          showToast("Cloud sync is not configured.");
-          return;
-        }
-        guestMode = false;
-        localStorage.removeItem(GUEST_MODE_KEY);
-        cloudStatus = "Opening Google...";
-        updateMenuStatus();
-        const { error } = await supabaseClient.auth.signInWithOAuth({
-          provider: "google",
-          options: { redirectTo: authRedirectUrl() },
-        });
-        if (error) {
-          cloudStatus = "Sign in failed";
-          updateMenuStatus();
-          showToast("Google sign in failed.");
-        }
-      });
-    }
+    if (signIn) signIn.addEventListener("click", signInWithGoogle);
     const guestSignIn = app.querySelector("[data-action='guest-sign-in']");
-    if (guestSignIn) {
-      guestSignIn.addEventListener("click", () => {
-        guestMode = true;
-        localStorage.setItem(GUEST_MODE_KEY, "true");
-        cloudStatus = "Browser storage only";
-        render();
-        showToast("Guest mode saves to this browser only.");
-      });
-    }
+    if (guestSignIn) guestSignIn.addEventListener("click", enterGuestMode);
     const leaveGuest = app.querySelector("[data-action='leave-guest']");
-    if (leaveGuest) {
-      leaveGuest.addEventListener("click", () => {
-        guestMode = false;
-        localStorage.removeItem(GUEST_MODE_KEY);
-        cloudStatus = "Browser storage only";
-        render();
-      });
-    }
+    if (leaveGuest) leaveGuest.addEventListener("click", leaveGuestMode);
     const signOut = app.querySelector("[data-action='sign-out-google']");
     if (signOut) {
       signOut.addEventListener("click", async () => {
@@ -1012,17 +1070,7 @@
   function bindNewRoutinePage() {
     if (!canCreateRoutines()) {
       const signIn = app.querySelector("[data-action='sign-in-google']");
-      if (signIn) {
-        signIn.addEventListener("click", async () => {
-          if (!supabaseClient) return;
-          guestMode = false;
-          localStorage.removeItem(GUEST_MODE_KEY);
-          await supabaseClient.auth.signInWithOAuth({
-            provider: "google",
-            options: { redirectTo: authRedirectUrl() },
-          });
-        });
-      }
+      if (signIn) signIn.addEventListener("click", signInWithGoogle);
       return;
     }
     const input = app.querySelector("[data-new-routine-name]");
