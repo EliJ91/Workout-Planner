@@ -2,7 +2,7 @@
   "use strict";
 
   const STORAGE_KEY = "workoutPlanner.web.v1";
-  const APP_VERSION = "1.1.0";
+  const APP_VERSION = "1.1.1";
   const TODAY = new Date().toISOString().slice(0, 10);
   const SUPABASE_TABLE = "workout_planner_data";
 
@@ -260,6 +260,10 @@
   function cloudUserLabel() {
     if (!authSession?.user) return "";
     return authSession.user.user_metadata?.full_name || authSession.user.email || "Google user";
+  }
+
+  function authRedirectUrl() {
+    return `${window.location.origin}${window.location.pathname}`;
   }
 
   function cloudMenu() {
@@ -540,7 +544,10 @@
         }
         cloudStatus = "Opening Google...";
         updateMenuStatus();
-        const { error } = await supabaseClient.auth.signInWithOAuth({ provider: "google" });
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo: authRedirectUrl() },
+        });
         if (error) {
           cloudStatus = "Sign in failed";
           updateMenuStatus();
