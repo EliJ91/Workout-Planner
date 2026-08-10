@@ -22,6 +22,7 @@ Then open `http://localhost:8080`.
 - Export all browser data to JSON
 - Import desktop or browser JSON data into browser storage
 - Sign in with Google and sync each user's data to their own Supabase row
+- Use guest/browser storage without cloud sync; creating new routines requires Google sign-in
 - Installable PWA shell with offline caching
 
 The previous Python desktop app is still included for reference, but active development is now focused on the browser version.

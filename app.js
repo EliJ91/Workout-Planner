@@ -3,7 +3,8 @@
 
   const STORAGE_KEY = "workoutPlanner.web.v1";
   const USER_STORAGE_PREFIX = `${STORAGE_KEY}.user.`;
-  const APP_VERSION = "1.1.3";
+  const GUEST_MODE_KEY = `${STORAGE_KEY}.guestMode`;
+  const APP_VERSION = "1.1.4";
   const TODAY = new Date().toISOString().slice(0, 10);
   const SUPABASE_TABLE = "workout_planner_data";
 
@@ -103,6 +104,7 @@
   let currentPage = "routine";
   let editMode = false;
   let editSnapshot = null;
+  let guestMode = localStorage.getItem(GUEST_MODE_KEY) === "true";
   let cloudSaveTimer = null;
   let cloudLoadActive = false;
   let cloudStatus = supabaseClient ? "Cloud ready" : "Local only";
@@ -283,6 +285,18 @@
     return authSession.user.user_metadata?.full_name || authSession.user.email || "Google user";
   }
 
+  function hasCloudIdentity() {
+    return Boolean(authSession?.user);
+  }
+
+  function canCreateRoutines() {
+    return hasCloudIdentity();
+  }
+
+  function localStorageStatus() {
+    return guestMode ? "Guest mode<br>Browser storage only" : "Not signed in<br>Browser storage only";
+  }
+
   function authRedirectUrl() {
     return `${window.location.origin}${window.location.pathname}`;
   }
@@ -294,7 +308,12 @@
     if (!authSession) {
       return `
         <button class="menu-item" type="button" data-action="sign-in-google">Sign in with Google</button>
-        <button class="menu-item menu-status" type="button" disabled>${escapeHtml(cloudStatus)}</button>
+        ${
+          guestMode
+            ? '<button class="menu-item" type="button" data-action="leave-guest">Leave Guest Mode</button>'
+            : '<button class="menu-item" type="button" data-action="guest-sign-in">Guest Sign In</button>'
+        }
+        <button class="menu-item menu-status" type="button" disabled>${localStorageStatus()}</button>
       `;
     }
     return `
@@ -402,15 +421,25 @@
     try {
       const { data } = await supabaseClient.auth.getSession();
       authSession = data.session;
-      cloudStatus = authSession ? "Signed in" : "Not signed in";
-      if (authSession) await loadCloudData();
-      else render();
+      if (authSession) {
+        guestMode = false;
+        localStorage.removeItem(GUEST_MODE_KEY);
+        cloudStatus = "Signed in";
+        await loadCloudData();
+      } else {
+        cloudStatus = "Browser storage only";
+        render();
+      }
       supabaseClient.auth.onAuthStateChange((_event, session) => {
         authSession = session;
         cloudDatabaseFull = false;
-        cloudStatus = session ? "Signed in" : "Not signed in";
-        if (session) loadCloudData();
-        else {
+        if (session) {
+          guestMode = false;
+          localStorage.removeItem(GUEST_MODE_KEY);
+          cloudStatus = "Signed in";
+          loadCloudData();
+        } else {
+          cloudStatus = "Browser storage only";
           window.clearTimeout(cloudSaveTimer);
           applyLoadedState(loadState(STORAGE_KEY));
           render();
@@ -439,6 +468,14 @@
   }
 
   function setPage(page) {
+    if (page === "new" && !canCreateRoutines()) {
+      currentPage = "routine";
+      closeEditMode(false);
+      selectedHistory = new Set();
+      render();
+      showToast("Sign in with Google to create routines.");
+      return;
+    }
     currentPage = page;
     if (page !== "routine") closeEditMode(false);
     selectedHistory = new Set();
@@ -500,7 +537,7 @@
         <nav class="app-menu" data-menu hidden>
           <button class="menu-item" type="button" data-nav="routine">View Routine</button>
           <button class="menu-item" type="button" data-action="toggle-edit">${editMode ? "Cancel" : "Edit Routine"}</button>
-          <button class="menu-item" type="button" data-nav="new">New Routine</button>
+          <button class="menu-item" type="button" data-nav="new" ${canCreateRoutines() ? "" : "disabled"}>New Routine</button>
           <div class="menu-separator"></div>
           <button class="menu-item" type="button" data-nav="history">History</button>
           <button class="menu-item" type="button" data-nav="data">Data</button>
@@ -570,6 +607,8 @@
           showToast("Cloud sync is not configured.");
           return;
         }
+        guestMode = false;
+        localStorage.removeItem(GUEST_MODE_KEY);
         cloudStatus = "Opening Google...";
         updateMenuStatus();
         const { error } = await supabaseClient.auth.signInWithOAuth({
@@ -583,13 +622,34 @@
         }
       });
     }
+    const guestSignIn = app.querySelector("[data-action='guest-sign-in']");
+    if (guestSignIn) {
+      guestSignIn.addEventListener("click", () => {
+        guestMode = true;
+        localStorage.setItem(GUEST_MODE_KEY, "true");
+        cloudStatus = "Browser storage only";
+        render();
+        showToast("Guest mode saves to this browser only.");
+      });
+    }
+    const leaveGuest = app.querySelector("[data-action='leave-guest']");
+    if (leaveGuest) {
+      leaveGuest.addEventListener("click", () => {
+        guestMode = false;
+        localStorage.removeItem(GUEST_MODE_KEY);
+        cloudStatus = "Browser storage only";
+        render();
+      });
+    }
     const signOut = app.querySelector("[data-action='sign-out-google']");
     if (signOut) {
       signOut.addEventListener("click", async () => {
         if (!supabaseClient) return;
         await supabaseClient.auth.signOut();
         authSession = null;
-        cloudStatus = "Not signed in";
+        guestMode = false;
+        localStorage.removeItem(GUEST_MODE_KEY);
+        cloudStatus = "Browser storage only";
         cloudDatabaseFull = false;
         window.clearTimeout(cloudSaveTimer);
         applyLoadedState(loadState(STORAGE_KEY));
@@ -844,6 +904,10 @@
       editSnapshot = null;
       saveState();
       render();
+      if (!hasCloudIdentity()) {
+        showToast(`${currentRoutine()} was updated in this browser.`);
+        return;
+      }
       const result = await saveCloudData({ quiet: true });
       showToast(result.databaseFull ? "Database is full. Saved on this device only." : `${currentRoutine()} was updated.`);
       return;
@@ -863,9 +927,13 @@
         exercise: row.exercise.trim(),
         weight: formatWeight(row.weight),
         reps: row.reps.trim(),
-      }));
+    }));
     state.routine_logs.push({ date: TODAY, routine: currentRoutine(), exercises, pb_entries: pbEntries });
     saveState();
+    if (!hasCloudIdentity()) {
+      showToast(`${currentRoutine()} was saved to this browser.`);
+      return;
+    }
     const result = await saveCloudData({ quiet: true });
     showToast(result.databaseFull ? "Database is full. Saved on this device only." : `${currentRoutine()} was saved for ${TODAY}.`);
   }
@@ -922,6 +990,15 @@
   }
 
   function renderNewRoutinePage() {
+    if (!canCreateRoutines()) {
+      return `
+        <section class="form-page">
+          <p class="section-label">Google Sign In Required</p>
+          <div class="status">New routines need a Google account. Workouts still save to this browser in guest mode.</div>
+          <button class="btn btn-primary" type="button" data-action="sign-in-google">Sign in with Google</button>
+        </section>
+      `;
+    }
     return `
       <section class="form-page">
         <p class="section-label">Routine Name</p>
@@ -933,6 +1010,21 @@
   }
 
   function bindNewRoutinePage() {
+    if (!canCreateRoutines()) {
+      const signIn = app.querySelector("[data-action='sign-in-google']");
+      if (signIn) {
+        signIn.addEventListener("click", async () => {
+          if (!supabaseClient) return;
+          guestMode = false;
+          localStorage.removeItem(GUEST_MODE_KEY);
+          await supabaseClient.auth.signInWithOAuth({
+            provider: "google",
+            options: { redirectTo: authRedirectUrl() },
+          });
+        });
+      }
+      return;
+    }
     const input = app.querySelector("[data-new-routine-name]");
     const create = app.querySelector("[data-action='create-routine']");
     const status = app.querySelector("[data-status]");

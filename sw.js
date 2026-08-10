@@ -1,10 +1,10 @@
-const CACHE_NAME = "workout-planner-v9";
+const CACHE_NAME = "workout-planner-v10";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=9",
-  "./supabase-config.js?v=9",
-  "./app.js?v=9",
+  "./styles.css?v=10",
+  "./supabase-config.js?v=10",
+  "./app.js?v=10",
   "./manifest.webmanifest",
   "./icons/icon.svg",
 ];
