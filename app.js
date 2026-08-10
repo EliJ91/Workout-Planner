@@ -2,7 +2,8 @@
   "use strict";
 
   const STORAGE_KEY = "workoutPlanner.web.v1";
-  const APP_VERSION = "1.1.2";
+  const USER_STORAGE_PREFIX = `${STORAGE_KEY}.user.`;
+  const APP_VERSION = "1.1.3";
   const TODAY = new Date().toISOString().slice(0, 10);
   const SUPABASE_TABLE = "workout_planner_data";
 
@@ -97,11 +98,11 @@
         })
       : null;
 
+  let authSession = null;
   let state = loadState();
   let currentPage = "routine";
   let editMode = false;
   let editSnapshot = null;
-  let authSession = null;
   let cloudSaveTimer = null;
   let cloudLoadActive = false;
   let cloudStatus = supabaseClient ? "Cloud ready" : "Local only";
@@ -242,19 +243,39 @@
     };
   }
 
-  function loadState() {
+  function userStorageKey(userId) {
+    return `${USER_STORAGE_PREFIX}${userId}`;
+  }
+
+  function currentStorageKey() {
+    return authSession?.user?.id ? userStorageKey(authSession.user.id) : STORAGE_KEY;
+  }
+
+  function loadStoredState(key) {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(key);
       if (stored) return normalizeData(JSON.parse(stored));
     } catch (_error) {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(key);
     }
+    return null;
+  }
+
+  function loadState(key = STORAGE_KEY) {
+    const stored = loadStoredState(key);
+    if (stored) return stored;
     return normalizeData(INITIAL_DATA);
   }
 
   function saveState(options = {}) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(currentStorageKey(), JSON.stringify(state));
     if (options.cloud !== false) queueCloudSave();
+  }
+
+  function applyLoadedState(nextState) {
+    state = normalizeData(nextState);
+    dataSelection = { kind: "routine", value: state.selected_routine };
+    selectedHistory = new Set();
   }
 
   function cloudUserLabel() {
@@ -346,10 +367,13 @@
         .maybeSingle();
       if (error) throw error;
       if (data?.payload) {
-        state = normalizeData(data.payload);
+        applyLoadedState(data.payload);
         saveState({ cloud: false });
         cloudStatus = "Synced";
       } else {
+        const userLocalState = loadStoredState(userStorageKey(authSession.user.id));
+        applyLoadedState(userLocalState || INITIAL_DATA);
+        saveState({ cloud: false });
         cloudLoadActive = false;
         await saveCloudData({ quiet: true });
         cloudLoadActive = true;
@@ -386,7 +410,11 @@
         cloudDatabaseFull = false;
         cloudStatus = session ? "Signed in" : "Not signed in";
         if (session) loadCloudData();
-        else render();
+        else {
+          window.clearTimeout(cloudSaveTimer);
+          applyLoadedState(loadState(STORAGE_KEY));
+          render();
+        }
       });
     } catch (_error) {
       cloudStatus = "Cloud sync failed";
@@ -562,6 +590,9 @@
         await supabaseClient.auth.signOut();
         authSession = null;
         cloudStatus = "Not signed in";
+        cloudDatabaseFull = false;
+        window.clearTimeout(cloudSaveTimer);
+        applyLoadedState(loadState(STORAGE_KEY));
         render();
       });
     }
