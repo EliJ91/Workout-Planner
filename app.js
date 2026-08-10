@@ -2,7 +2,7 @@
   "use strict";
 
   const STORAGE_KEY = "workoutPlanner.web.v1";
-  const APP_VERSION = "1.1.1";
+  const APP_VERSION = "1.1.2";
   const TODAY = new Date().toISOString().slice(0, 10);
   const SUPABASE_TABLE = "workout_planner_data";
 

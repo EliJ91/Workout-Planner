@@ -1,10 +1,10 @@
-const CACHE_NAME = "workout-planner-v7";
+const CACHE_NAME = "workout-planner-v8";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=7",
-  "./supabase-config.js?v=7",
-  "./app.js?v=7",
+  "./styles.css?v=8",
+  "./supabase-config.js?v=8",
+  "./app.js?v=8",
   "./manifest.webmanifest",
   "./icons/icon.svg",
 ];
@@ -25,5 +25,9 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  if (event.request.mode === "navigate" || event.request.destination === "document") {
+    event.respondWith(fetch(event.request).catch(() => caches.match("./index.html").then((cached) => cached || caches.match("./"))));
+    return;
+  }
   event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
 });
