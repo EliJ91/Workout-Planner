@@ -14,7 +14,7 @@
   --danger-dim: #3b1014;
   --plate-light: #f2f0e8;
   --plate-mid: #a8b7c4;
-  --barbell: #9aa7b0;
+  --barbell: rgba(154, 167, 176, 0.62);
   font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
