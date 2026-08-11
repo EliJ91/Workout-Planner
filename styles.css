@@ -50,11 +50,12 @@ button {
   margin: 0 auto;
   background: var(--panel);
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 1fr;
   overflow: hidden;
 }
 
 .screen {
+  height: 100%;
   min-height: 0;
   padding: max(18px, env(safe-area-inset-top)) 20px max(18px, env(safe-area-inset-bottom));
   display: grid;
@@ -177,6 +178,7 @@ button {
 
 .auth-panel {
   width: 100%;
+  max-width: 430px;
   display: grid;
   gap: 18px;
   justify-items: stretch;
@@ -235,12 +237,6 @@ button {
   text-transform: uppercase;
 }
 
-.routine-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-}
-
 .select-like,
 .text-input,
 .data-selector-button {
@@ -258,6 +254,26 @@ button {
 .data-selector {
   position: relative;
   min-width: 0;
+}
+
+.routine-control-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.routine-toolbar {
+  display: flex;
+  gap: 6px;
+}
+
+.routine-tool {
+  min-height: 34px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  white-space: nowrap;
 }
 
 .routine-menu,

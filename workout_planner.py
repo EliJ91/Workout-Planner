@@ -12,7 +12,7 @@ from tkinter import filedialog, messagebox, ttk
 
 APP_DIR = Path(__file__).resolve().parent
 DATA_PATH = APP_DIR / "workout_data.json"
-APP_VERSION = "1.1.6"
+APP_VERSION = "1.1.7"
 TODAY = date.today().isoformat()
 PLATE_DENOMINATIONS = [45, 35, 25, 10, 5, 2.5]
 DEFAULT_WEIGHT_OFFSET = "45"
@@ -896,7 +896,7 @@ class WorkoutPlannerApp(tk.Tk):
 
     def _refresh_app_menu(self) -> None:
         self.app_menu.delete(0, tk.END)
-        self.app_menu.add_command(label="View Routine", command=self._show_main_page)
+        self.app_menu.add_command(label="Home", command=self._show_main_page)
         self.app_menu.add_command(label="Cancel" if self.edit_mode else "Edit Routine", command=self._toggle_edit_mode_from_menu)
         self.app_menu.add_command(label="New Routine", command=self._open_new_routine)
         self.app_menu.add_separator()

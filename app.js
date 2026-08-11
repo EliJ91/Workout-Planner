@@ -4,7 +4,7 @@
   const STORAGE_KEY = "workoutPlanner.web.v1";
   const USER_STORAGE_PREFIX = `${STORAGE_KEY}.user.`;
   const GUEST_MODE_KEY = `${STORAGE_KEY}.guestMode`;
-  const APP_VERSION = "1.1.6";
+  const APP_VERSION = "1.1.7";
   const TODAY = new Date().toISOString().slice(0, 10);
   const SUPABASE_TABLE = "workout_planner_data";
 
@@ -535,8 +535,7 @@
           <button class="hamburger" type="button" data-action="toggle-menu" aria-label="Menu"><span></span></button>
         </header>
         <nav class="app-menu" data-menu hidden>
-          <button class="menu-item" type="button" data-nav="routine">View Routine</button>
-          <button class="menu-item" type="button" data-action="toggle-edit">${editMode ? "Cancel" : "Edit Routine"}</button>
+          <button class="menu-item" type="button" data-nav="routine">Home</button>
           <button class="menu-item" type="button" data-nav="new" ${canCreateRoutines() ? "" : "disabled"}>New Routine</button>
           <div class="menu-separator"></div>
           <button class="menu-item" type="button" data-nav="history">History</button>
@@ -633,18 +632,6 @@
     app.querySelectorAll("[data-nav]").forEach((button) => {
       button.addEventListener("click", () => setPage(button.dataset.nav));
     });
-    app.querySelector("[data-action='toggle-edit']").addEventListener("click", () => {
-      if (currentPage !== "routine") {
-        currentPage = "routine";
-      }
-      if (editMode) {
-        closeEditMode(false);
-      } else {
-        editSnapshot = clone(currentRows());
-        editMode = true;
-      }
-      render();
-    });
     const signIn = app.querySelector("[data-action='sign-in-google']");
     if (signIn) signIn.addEventListener("click", signInWithGoogle);
     const guestSignIn = app.querySelector("[data-action='guest-sign-in']");
@@ -681,15 +668,21 @@
       <section class="routine-page">
         <div>
           <p class="section-label">Routine</p>
-          <div class="routine-selector">
-            <button class="select-like" type="button" data-action="toggle-routine-menu">${escapeHtml(currentRoutine())}</button>
-            <div class="routine-menu" data-routine-menu hidden>
-              ${routineNames()
-                .map(
-                  (name) =>
-                    `<button class="routine-option ${name === currentRoutine() ? "active" : ""}" type="button" data-routine="${escapeAttr(name)}">${escapeHtml(name)}</button>`
-                )
-                .join("")}
+          <div class="routine-control-row">
+            <div class="routine-selector">
+              <button class="select-like" type="button" data-action="toggle-routine-menu">${escapeHtml(currentRoutine())}</button>
+              <div class="routine-menu" data-routine-menu hidden>
+                ${routineNames()
+                  .map(
+                    (name) =>
+                      `<button class="routine-option ${name === currentRoutine() ? "active" : ""}" type="button" data-routine="${escapeAttr(name)}">${escapeHtml(name)}</button>`
+                  )
+                  .join("")}
+              </div>
+            </div>
+            <div class="routine-toolbar">
+              <button class="btn btn-secondary routine-tool" type="button" data-action="toggle-edit">${editMode ? "Cancel" : "Edit Routine"}</button>
+              <button class="btn btn-danger routine-tool" type="button" data-action="delete-current-routine">Delete Routine</button>
             </div>
           </div>
         </div>
@@ -873,6 +866,8 @@
     });
 
     app.querySelector("[data-action='save-routine']").addEventListener("click", saveRoutineButton);
+    app.querySelector("[data-action='toggle-edit']").addEventListener("click", toggleEditMode);
+    app.querySelector("[data-action='delete-current-routine']").addEventListener("click", () => deleteRoutine(currentRoutine()));
     const addButton = app.querySelector("[data-action='add-exercise']");
     if (addButton) addButton.addEventListener("click", addExercise);
 
@@ -905,6 +900,19 @@
     const list = app.querySelector("[data-routine-list]");
     const float = app.querySelector("[data-scroll-float]");
     bindFloatingScroll(list, float);
+  }
+
+  function toggleEditMode() {
+    if (currentPage !== "routine") {
+      currentPage = "routine";
+    }
+    if (editMode) {
+      closeEditMode(false);
+    } else {
+      editSnapshot = clone(currentRows());
+      editMode = true;
+    }
+    render();
   }
 
   async function saveRoutineButton() {
