@@ -12,7 +12,7 @@ from tkinter import filedialog, messagebox, ttk
 
 APP_DIR = Path(__file__).resolve().parent
 DATA_PATH = APP_DIR / "workout_data.json"
-APP_VERSION = "1.1.5"
+APP_VERSION = "1.1.6"
 TODAY = date.today().isoformat()
 PLATE_DENOMINATIONS = [45, 35, 25, 10, 5, 2.5]
 DEFAULT_WEIGHT_OFFSET = "45"
@@ -22,10 +22,10 @@ DEFAULT_ROUTINES = {
     "Push Day": [
         {"exercise": "Incline Barbell Press", "weight": "125", "reps": "3x8"},
         {"exercise": "Seated Shoulder Press", "weight": "67.5", "reps": "3x10"},
-        {"exercise": "Cable Chest Fly", "weight": "37.5", "reps": "3x8"},
-        {"exercise": "Cable Lateral Raise", "weight": "12.5", "reps": "3x8"},
-        {"exercise": "Cable Tricep Pushdown", "weight": "42.5", "reps": "3x10"},
-        {"exercise": "Overhead Cable Tricep Extension", "weight": "25", "reps": "2x15"},
+        {"exercise": "Cable Chest Fly", "weight": "40", "reps": "3x8"},
+        {"exercise": "Cable Lateral Raise", "weight": "15", "reps": "3x8"},
+        {"exercise": "Cable Tricep Pushdown", "weight": "45", "reps": "3x10"},
+        {"exercise": "Overhead Cable Tricep Extension", "weight": "40", "reps": "2x15"},
     ],
     "Pull Day": [
         {"exercise": "Barbell Row", "weight": "100", "reps": "3x8"},
@@ -33,15 +33,7 @@ DEFAULT_ROUTINES = {
         {"exercise": "Cable Row 1 Arm", "weight": "40", "reps": "3x8"},
         {"exercise": "Face Pulls", "weight": "40", "reps": "3x12"},
         {"exercise": "Preacher Curl", "weight": "30", "reps": "3x10"},
-        {"exercise": "Hammer Curl (Cable) 1 Arm", "weight": "15", "reps": "2x10"},
-    ],
-    "Legs Day": [
-        {"exercise": "Squat", "weight": "", "reps": "3x6-8"},
-        {"exercise": "Romanian Deadlift", "weight": "", "reps": "3x8-10"},
-        {"exercise": "Bulgarian Split Squat", "weight": "", "reps": "3x10 each leg"},
-        {"exercise": "Cable Pull Through", "weight": "", "reps": "3x12"},
-        {"exercise": "Calf Raises", "weight": "", "reps": "3x15"},
-        {"exercise": "Back Extensions", "weight": "", "reps": "2x15"},
+        {"exercise": "Hammer Curl 1 Arm", "weight": "15", "reps": "2x10"},
     ],
 }
 

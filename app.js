@@ -4,7 +4,7 @@
   const STORAGE_KEY = "workoutPlanner.web.v1";
   const USER_STORAGE_PREFIX = `${STORAGE_KEY}.user.`;
   const GUEST_MODE_KEY = `${STORAGE_KEY}.guestMode`;
-  const APP_VERSION = "1.1.5";
+  const APP_VERSION = "1.1.6";
   const TODAY = new Date().toISOString().slice(0, 10);
   const SUPABASE_TABLE = "workout_planner_data";
 
@@ -14,7 +14,7 @@
 
   const INITIAL_DATA = {
     settings: { always_on_top: false },
-    selected_routine: "Legs Day",
+    selected_routine: "Push Day",
     routines: {
       "Push Day": [
         { exercise: "Incline Barbell Press", weight: "125", reps: "3x8", weight_offset: "45", track_pb: false },
@@ -32,56 +32,8 @@
         { exercise: "Preacher Curl", weight: "30", reps: "3x10", weight_offset: "0", track_pb: false },
         { exercise: "Hammer Curl 1 Arm", weight: "15", reps: "2x10", weight_offset: "0", track_pb: false },
       ],
-      "Legs Day": [
-        { exercise: "Squat", weight: "0", reps: "3x6-8", weight_offset: "45", track_pb: false },
-        { exercise: "Romanian Deadlift", weight: "0", reps: "3x8-10", weight_offset: "45", track_pb: false },
-        { exercise: "Bulgarian Split Squat", weight: "0", reps: "3x10 each leg", weight_offset: "45", track_pb: false },
-        { exercise: "Cable Pull Through", weight: "0", reps: "3x12", weight_offset: "45", track_pb: false },
-        { exercise: "Calf Raises", weight: "0", reps: "3x15", weight_offset: "45", track_pb: false },
-        { exercise: "Back Extensions", weight: "0", reps: "2x15", weight_offset: "45", track_pb: false },
-      ],
     },
-    routine_logs: [
-      {
-        date: "2026-08-03",
-        routine: "Push Day",
-        exercises: [
-          { exercise: "Incline Barbell Press", weight: "125", reps: "3x8" },
-          { exercise: "Seated Shoulder Press", weight: "67.5", reps: "3x10" },
-          { exercise: "Cable Chest Fly", weight: "37.5", reps: "3x8" },
-          { exercise: "Cable Lateral Raise", weight: "12.5", reps: "3x8" },
-          { exercise: "Cable Tricep Pushdown", weight: "42.5", reps: "3x10" },
-          { exercise: "Overhead Cable Tricep Extension", weight: "25", reps: "2x15" },
-        ],
-        pb_entries: [],
-      },
-      {
-        date: "2026-08-06",
-        routine: "Pull Day",
-        exercises: [
-          { exercise: "Barbell Row", weight: "100", reps: "3x8" },
-          { exercise: "Lat Pulldown", weight: "100", reps: "3x6" },
-          { exercise: "Cable Row 1 Arm", weight: "40", reps: "3x8" },
-          { exercise: "Face Pulls", weight: "40", reps: "3x12" },
-          { exercise: "Preacher Curl", weight: "30", reps: "3x10" },
-          { exercise: "Hammer Curl (Cable) 1 Arm", weight: "15", reps: "2x10" },
-        ],
-        pb_entries: [],
-      },
-      {
-        date: "2026-08-09",
-        routine: "Push Day",
-        exercises: [
-          { exercise: "Incline Barbell Press", weight: "125", reps: "3x8" },
-          { exercise: "Seated Shoulder Press", weight: "67.5", reps: "3x10" },
-          { exercise: "Cable Chest Fly", weight: "37.5", reps: "3x8" },
-          { exercise: "Cable Lateral Raise", weight: "12.5", reps: "3x8" },
-          { exercise: "Cable Tricep Pushdown", weight: "42.5", reps: "3x10" },
-          { exercise: "Overhead Cable Tricep Extension", weight: "25", reps: "2x15" },
-        ],
-        pb_entries: [],
-      },
-    ],
+    routine_logs: [],
   };
 
   const app = document.getElementById("app");
