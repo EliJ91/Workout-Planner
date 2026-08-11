@@ -4,7 +4,7 @@
   const STORAGE_KEY = "workoutPlanner.web.v1";
   const USER_STORAGE_PREFIX = `${STORAGE_KEY}.user.`;
   const GUEST_MODE_KEY = `${STORAGE_KEY}.guestMode`;
-  const APP_VERSION = "1.1.8";
+  const APP_VERSION = "1.1.9";
   const TODAY = new Date().toISOString().slice(0, 10);
   const SUPABASE_TABLE = "workout_planner_data";
 

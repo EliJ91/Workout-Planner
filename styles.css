@@ -381,18 +381,16 @@ button {
   display: grid;
   grid-template-columns: 150px minmax(0, 1fr);
   gap: 14px;
-  border: 1px solid var(--line);
   background: var(--card);
   padding: 14px;
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   min-width: 0;
 }
 
 .plate-card {
   width: 150px;
   height: 120px;
-  border: 1px solid var(--line);
-  background: #101a2a;
+  background: transparent;
   position: relative;
   overflow: hidden;
 }
