@@ -269,11 +269,22 @@ button {
 }
 
 .routine-tool {
+  width: 38px;
   min-height: 34px;
-  padding: 7px 10px;
+  padding: 0;
   border-radius: 6px;
-  font-size: 0.7rem;
-  white-space: nowrap;
+  display: grid;
+  place-items: center;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .routine-menu,
@@ -337,7 +348,9 @@ button {
   scrollbar-width: none;
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
-  padding-right: 2px;
+  border: 1px solid var(--line);
+  background: #081322;
+  padding: 10px 10px 0;
 }
 
 .routine-list::-webkit-scrollbar,

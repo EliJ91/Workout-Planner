@@ -4,7 +4,7 @@
   const STORAGE_KEY = "workoutPlanner.web.v1";
   const USER_STORAGE_PREFIX = `${STORAGE_KEY}.user.`;
   const GUEST_MODE_KEY = `${STORAGE_KEY}.guestMode`;
-  const APP_VERSION = "1.1.7";
+  const APP_VERSION = "1.1.8";
   const TODAY = new Date().toISOString().slice(0, 10);
   const SUPABASE_TABLE = "workout_planner_data";
 
@@ -86,6 +86,18 @@
 
   function escapeAttr(value) {
     return escapeHtml(value).replace(/\n/g, "&#10;");
+  }
+
+  function iconSvg(name) {
+    const icons = {
+      edit:
+        '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4z"></path><path d="M14 6l4 4"></path></svg>',
+      cancel:
+        '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>',
+      trash:
+        '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V5h6v2"></path><path d="M7 7l1 13h8l1-13"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg>',
+    };
+    return icons[name] || "";
   }
 
   function boolFromData(value) {
@@ -681,8 +693,8 @@
               </div>
             </div>
             <div class="routine-toolbar">
-              <button class="btn btn-secondary routine-tool" type="button" data-action="toggle-edit">${editMode ? "Cancel" : "Edit Routine"}</button>
-              <button class="btn btn-danger routine-tool" type="button" data-action="delete-current-routine">Delete Routine</button>
+              <button class="btn btn-secondary routine-tool" type="button" data-action="toggle-edit" aria-label="${editMode ? "Cancel edit" : "Edit routine"}" title="${editMode ? "Cancel" : "Edit Routine"}">${iconSvg(editMode ? "cancel" : "edit")}</button>
+              <button class="btn btn-danger routine-tool" type="button" data-action="delete-current-routine" aria-label="Delete routine" title="Delete Routine">${iconSvg("trash")}</button>
             </div>
           </div>
         </div>
