@@ -4,7 +4,7 @@
   const STORAGE_KEY = "workoutPlanner.web.v1";
   const USER_STORAGE_PREFIX = `${STORAGE_KEY}.user.`;
   const GUEST_MODE_KEY = `${STORAGE_KEY}.guestMode`;
-  const APP_VERSION = "1.1.10";
+  const APP_VERSION = "1.1.11";
   const TODAY = new Date().toISOString().slice(0, 10);
   const SUPABASE_TABLE = "workout_planner_data";
 
@@ -96,8 +96,10 @@
         '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>',
       trash:
         '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V5h6v2"></path><path d="M7 7l1 13h8l1-13"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg>',
-      grip:
-        '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h.01"></path><path d="M15 5h.01"></path><path d="M9 12h.01"></path><path d="M15 12h.01"></path><path d="M9 19h.01"></path><path d="M15 19h.01"></path></svg>',
+      up:
+        '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path></svg>',
+      down:
+        '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M19 12l-7 7-7-7"></path></svg>',
     };
     return icons[name] || "";
   }
@@ -716,17 +718,23 @@
     const editable = editMode;
     const pbEditable = !editable && row.track_pb;
     return `
-      <article class="exercise-card ${editable ? "is-editable" : ""}" data-index="${index}">
-        ${renderPlate(row)}
+      <article class="exercise-card" data-index="${index}">
+        <div class="exercise-side">
+          ${renderPlate(row)}
+          ${
+            editable
+              ? `<div class="move-controls">
+                  <button class="move-btn" type="button" data-action="move-exercise" data-direction="up" data-index="${index}" aria-label="Move exercise up" title="Move up" ${index === 0 ? "disabled" : ""}>${iconSvg("up")}</button>
+                  <button class="move-btn" type="button" data-action="move-exercise" data-direction="down" data-index="${index}" aria-label="Move exercise down" title="Move down" ${index === currentRows().length - 1 ? "disabled" : ""}>${iconSvg("down")}</button>
+                </div>`
+              : ""
+          }
+        </div>
         <div class="exercise-detail">
           <div class="card-title-row">
             ${
               editable
-                ? '<div class="edit-actions"><button class="drag-handle" type="button" data-action="drag-exercise" data-index="' +
-                  index +
-                  '" aria-label="Drag to rearrange exercise" title="Drag to rearrange">' +
-                  iconSvg("grip") +
-                  '</button><button class="delete-mini" type="button" data-action="delete-exercise" data-index="' +
+                ? '<div class="edit-actions"><button class="delete-mini" type="button" data-action="delete-exercise" data-index="' +
                   index +
                   '">X</button><button class="pb-btn ' +
                   (row.track_pb ? "active" : "") +
@@ -915,106 +923,22 @@
       button.addEventListener("click", () => deleteExercise(Number(button.dataset.index)));
     });
 
+    app.querySelectorAll("[data-action='move-exercise']").forEach((button) => {
+      button.addEventListener("click", () => moveExercise(Number(button.dataset.index), button.dataset.direction));
+    });
+
     const list = app.querySelector("[data-routine-list]");
     const float = app.querySelector("[data-scroll-float]");
-    bindExerciseReorder(list);
     bindFloatingScroll(list, float);
   }
 
-  function bindExerciseReorder(list) {
-    if (!editMode || !list) return;
-    let dragState = null;
-    let holdState = null;
-
-    const clearHold = () => {
-      if (!holdState) return;
-      window.clearTimeout(holdState.timer);
-      holdState = null;
-    };
-
-    const beginDrag = (event, card) => {
-      clearHold();
-      dragState = { card, pointerId: event.pointerId };
-      card.classList.add("dragging");
-      list.classList.add("is-reordering");
-      try {
-        card.setPointerCapture(event.pointerId);
-      } catch (_error) {}
-    };
-
-    const moveDraggingCard = (clientY) => {
-      if (!dragState) return;
-      const box = list.getBoundingClientRect();
-      const scrollZone = 48;
-      if (clientY < box.top + scrollZone) list.scrollTop -= 12;
-      if (clientY > box.bottom - scrollZone) list.scrollTop += 12;
-
-      const cards = [...list.querySelectorAll(".exercise-card:not(.dragging)")];
-      const nextCard = cards.find((card) => {
-        const rect = card.getBoundingClientRect();
-        return clientY < rect.top + rect.height / 2;
-      });
-      if (nextCard) {
-        list.insertBefore(dragState.card, nextCard);
-      } else {
-        list.appendChild(dragState.card);
-      }
-    };
-
-    const finishDrag = () => {
-      clearHold();
-      if (!dragState) return;
-      const oldRows = currentRows();
-      const newRows = [...list.querySelectorAll(".exercise-card")]
-        .map((card) => oldRows[Number(card.dataset.index)])
-        .filter(Boolean);
-      state.routines[currentRoutine()] = newRows;
-      dragState.card.classList.remove("dragging");
-      list.classList.remove("is-reordering");
-      dragState = null;
-      saveState();
-      render();
-    };
-
-    list.querySelectorAll(".exercise-card").forEach((card) => {
-      card.addEventListener("pointerdown", (event) => {
-        if (event.pointerType === "mouse" && event.button !== 0) return;
-        const handle = event.target.closest("[data-action='drag-exercise']");
-        const interactive = event.target.closest("input, textarea, select, button");
-        if (interactive && !handle) return;
-        event.preventDefault();
-        if (handle || event.pointerType === "mouse") {
-          beginDrag(event, card);
-          return;
-        }
-        holdState = {
-          card,
-          pointerId: event.pointerId,
-          startX: event.clientX,
-          startY: event.clientY,
-          timer: window.setTimeout(() => beginDrag(event, card), 260),
-        };
-      });
-
-      card.addEventListener("pointermove", (event) => {
-        if (holdState?.pointerId === event.pointerId) {
-          const moved = Math.hypot(event.clientX - holdState.startX, event.clientY - holdState.startY);
-          if (moved > 8) clearHold();
-        }
-        if (dragState?.pointerId !== event.pointerId) return;
-        event.preventDefault();
-        moveDraggingCard(event.clientY);
-      });
-
-      card.addEventListener("pointerup", (event) => {
-        if (holdState?.pointerId === event.pointerId) clearHold();
-        if (dragState?.pointerId === event.pointerId) finishDrag();
-      });
-      card.addEventListener("pointercancel", (event) => {
-        if (holdState?.pointerId === event.pointerId) clearHold();
-        if (dragState?.pointerId === event.pointerId) finishDrag();
-      });
-    });
+  function moveExercise(index, direction) {
+    const rows = currentRows();
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= rows.length) return;
+    [rows[index], rows[targetIndex]] = [rows[targetIndex], rows[index]];
+    saveState();
+    render();
   }
 
   function toggleEditMode() {

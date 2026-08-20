@@ -387,23 +387,6 @@ button {
   min-width: 0;
 }
 
-.exercise-card.is-editable {
-  cursor: grab;
-  user-select: none;
-}
-
-.exercise-card.dragging {
-  cursor: grabbing;
-  opacity: 0.72;
-  outline: 1px solid var(--blue);
-  position: relative;
-  z-index: 2;
-}
-
-.routine-list.is-reordering {
-  scroll-behavior: auto;
-}
-
 .plate-card {
   width: 150px;
   height: 120px;
@@ -473,6 +456,36 @@ button {
   background: var(--barbell);
 }
 
+.exercise-side {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 8px;
+  min-width: 0;
+}
+
+.move-controls {
+  min-height: 78px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  align-items: stretch;
+}
+
+.move-btn {
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: #172338;
+  color: #a9c7ff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.move-btn[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
 .exercise-detail {
   min-width: 0;
   display: grid;
@@ -529,8 +542,7 @@ button {
 }
 
 .pb-btn,
-.delete-mini,
-.drag-handle {
+.delete-mini {
   border: 0;
   border-radius: 0;
   cursor: pointer;
@@ -552,12 +564,6 @@ button {
 .delete-mini {
   background: #2a1820;
   color: #fda4af;
-}
-
-.drag-handle {
-  background: #172338;
-  color: #a9c7ff;
-  touch-action: none;
 }
 
 .edit-actions {
