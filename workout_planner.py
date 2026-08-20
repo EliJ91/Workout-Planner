@@ -12,7 +12,7 @@ from tkinter import filedialog, messagebox, ttk
 
 APP_DIR = Path(__file__).resolve().parent
 DATA_PATH = APP_DIR / "workout_data.json"
-APP_VERSION = "1.1.9"
+APP_VERSION = "1.1.10"
 TODAY = date.today().isoformat()
 PLATE_DENOMINATIONS = [45, 35, 25, 10, 5, 2.5]
 DEFAULT_WEIGHT_OFFSET = "45"

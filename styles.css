@@ -387,6 +387,23 @@ button {
   min-width: 0;
 }
 
+.exercise-card.is-editable {
+  cursor: grab;
+  user-select: none;
+}
+
+.exercise-card.dragging {
+  cursor: grabbing;
+  opacity: 0.72;
+  outline: 1px solid var(--blue);
+  position: relative;
+  z-index: 2;
+}
+
+.routine-list.is-reordering {
+  scroll-behavior: auto;
+}
+
 .plate-card {
   width: 150px;
   height: 120px;
@@ -512,7 +529,8 @@ button {
 }
 
 .pb-btn,
-.delete-mini {
+.delete-mini,
+.drag-handle {
   border: 0;
   border-radius: 0;
   cursor: pointer;
@@ -534,6 +552,12 @@ button {
 .delete-mini {
   background: #2a1820;
   color: #fda4af;
+}
+
+.drag-handle {
+  background: #172338;
+  color: #a9c7ff;
+  touch-action: none;
 }
 
 .edit-actions {
